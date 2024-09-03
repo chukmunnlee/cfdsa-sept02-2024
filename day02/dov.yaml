@@ -28,7 +28,8 @@ spec:
         image: chukmunnlee/dov-bear@sha256:483038792aba29562a4d2044e790d7d3e7e6e6f684ce1fcafc3864949c000224
         imagePullPolicy: IfNotPresent
         ports:
-        - containerPort: 3000
+        - name: app-port 
+          containerPort: 3000
         env:
         - name: INSTANCE_NAME
           valueFrom:
@@ -38,4 +39,22 @@ spec:
           valueFrom: 
             fieldRef:
               fieldPath: metadata.labels['pod-template-hash']
-    
+
+---
+apiVersion: v1 
+kind: Service 
+metadata: 
+  name: dov-svc 
+  namespace: myns 
+  labels:
+    app: dov 
+    name: dov-svc 
+spec: 
+  type: ClusterIP
+  selector: 
+    app: myapp 
+    dept: eng
+    commit: abc123
+  ports: 
+  - port: 8000
+    targetPort: app-port
