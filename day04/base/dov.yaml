@@ -5,18 +5,6 @@ metadata:
   name: dovns
 
 ---
-apiVersion: v1
-kind: ConfigMap
-metadata:
-  name: dov-cm
-  namespace: dovns
-  labels:
-    app: dov 
-    name: dov-cm
-data:
-  INSTANCE_NAME: dov-bear
-
----
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -75,3 +63,30 @@ spec:
   ports:
   - port: 3000
     targetPort: 3000
+
+--- 
+apiVersion: autoscaling/v2 
+kind: HorizontalPodAutoscaler
+metadata: 
+  name: dov-hpa 
+  namespace: dovns 
+spec: 
+  minReplicas: 1
+  maxReplicas: 8
+  scaleTargetRef:
+    apiVersion: apps/v1 
+    kind: Deployment 
+    name: dov-deploy
+  metrics:
+  - type: Resource 
+    resource: 
+      name: memory
+      target: 
+        type: Utilization 
+        averageUtilization: 50
+  - type: Resource 
+    resource: 
+      name: cpu
+      target: 
+        type: Utilization 
+        averageUtilization: 20
